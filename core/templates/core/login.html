@@ -1,0 +1,73 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+    <meta charset="UTF-8" />
+    <meta content="IE=edge" http-equiv="X-UA-Compatible" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <title>Welcome</title>
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@1.0.0/css/bulma.min.css">
+  </head>
+
+  <body class="px-2">
+    <section class="container is-max-desktop mt-6">
+      <div class="">
+        <div class="content has-text-centered m-auto">
+          <img
+            alt="ucsp"
+            class=""
+            style="height: 96px;"
+            src="https://vocacional.ucsp.edu.pe/img/logo-azul-ucsp.png" />
+        </div>
+
+        <div class="mt-6">
+
+          <h1 class="subtitle has-text-centered m-auto">
+            Attendance QR scanner
+          </h1>
+
+          <form
+            action="{% url 'login_view' %}"
+            class="mt-2"
+            method="POST">
+            {% csrf_token %}
+
+            <div class="field">
+              <label class="label" for="username">Your user</label>
+              <div class="control">
+
+                <input
+                  class="input"
+                  id="username"
+                  name="username"
+                  required
+                  type="text">
+              </div>
+            </div>
+            <div class="field">
+              <label class="label" for="password">Password</label>
+              <div class="control">
+                <input
+                  class="input"
+                  id="password"
+                  name="password"
+                  required
+                  type="password">
+              </div>
+            </div>
+            {% if error %}
+              <p class="help is-danger has-text-centered m-auto">The username or password you entered is incorrect. Please try again.</p>
+            {% endif %}
+            <div class="has-text-centered m-auto pt-2">
+              <button class="button is-link px-4 has-text-centered m-auto" type="submit">Sign in</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </section>
+
+  </body>
+
+</html>

@@ -1,0 +1,122 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+    <meta charset="UTF-8" />
+    <meta content="IE=edge" http-equiv="X-UA-Compatible" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <title>Reports</title>
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@1.0.0/css/bulma.min.css">
+  </head>
+
+  <body>
+
+    {% include 'core/navbar.html' %}
+
+    <section class="container is-max-desktop mt-4 px-2">
+      <div class="">
+        <h1 class="subtitle">
+          Reports
+        </h1>
+
+        <form
+          action="{% url 'report' %}"
+          class=""
+          method="POST">
+          {% csrf_token %}
+          <div class="field">
+            <label class="label" for="begin_time">From:</label>
+            <input
+              class="input"
+              type="datetime-local"
+              id="begin_time"
+              name="begin_time"
+              required
+              value={{begin}}
+              min="2024-01-01T00:00:00"
+              max="2024-12-31T00:00:00" />
+          </div>
+          <div class="field">
+            <label class="label" for="end_time">To:</label>
+            <input
+              class="input"
+              type="datetime-local"
+              id="end_time"
+              required
+              name="end_time"
+              value={{end}}
+              min="2024-01-01T00:00:00"
+              max="2024-12-31T00:00:00" />
+          </div>
+          <div class="field">
+            <label class="checkbox">
+              <input
+                type="checkbox"
+                name="only_unchecked"
+                {% if only_unchecked %}
+                checked
+                {% endif %} />
+              only unchecked
+            </label>
+          </div>
+
+          <div class="has-text-centered m-auto pt-2">
+            <button class="button is-link px-4 has-text-centered m-auto" type="submit">View</button>
+            <button
+              class="button is-light px-4 has-text-centered m-auto"
+              type="submit"
+              name="format_csv">Export</button>
+          </div>
+
+
+        </form>
+      </div>
+    </section>
+
+    <section class="container is-max-desktop my-4 px-2">
+
+      {% if contCheck %}
+        <div class="has-text-centered mx-auto py-4 is-size-7">
+          <span class="tag is-light">{{ contCheck }}</span>
+          check of
+          <span class="tag is-light">{{ contTotal }}</span>
+        </div>
+      {% endif %}
+
+      <table class="table is-bordered is-striped is-hoverable is-fullwidth">
+        <thead>
+          <tr>
+            <th></th>
+            <th>Names</th>
+            <th>Check</th>
+            <th>Date time</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for item in table %}
+            <tr>
+              <td class="has-text-right has-text-weight-medium">{{ forloop.counter }}</td>
+              <td>{{ item.name }}</td>
+              {% if item.check %}
+                <td class="has-text-centered">&#10004;</td>
+              {% else %}
+                <td></td>
+              {% endif %}
+              {% if item.timestamp %}
+                <td>{{ item.timestamp }}</td>
+              {% else %}
+                <td></td>
+              {% endif %}
+            </tr>
+          {% endfor %}
+
+        </tbody>
+      </table>
+
+    </section>
+
+  </body>
+
+</html>

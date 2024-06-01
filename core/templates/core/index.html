@@ -1,0 +1,148 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+    <meta charset="UTF-8" />
+    <meta content="IE=edge" http-equiv="X-UA-Compatible" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <title>Attendance</title>
+
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@1.0.0/css/bulma.min.css">
+
+  </head>
+
+  <body>
+
+    {% include 'core/navbar.html' %}
+    <section class="container is-max-desktop">
+
+      <div class="py-4 has-text-centered m-auto">
+        <label class="is-size-7 has-text-weight-semibold is-block">Last code detected</label>
+        <label
+          class="is-capitalized is-block"
+          style="white-space: nowrap; overflow: hidden;text-overflow: ellipsis;"
+          id="lastCodeDetected">-</label>
+      </div>
+      <div id="reader" width="600px"></div>
+
+      <div class="py-4 has-text-centered m-auto has-text-weight-bold">
+        or
+      </div>
+
+      <div class="mb-6" style="border: 1px solid #dcdcdc;">
+        <div class="px-2 py-2">
+          <div class="field">
+            <label class="label">Enter the code</label>
+            <div class="control">
+              <input
+                class="input"
+                type="text"
+                name="code"
+                id="codeInput"
+                placeholder="">
+            </div>
+          </div>
+          <div class="has-text-centered m-auto">
+            <button class="button is-link" id="btnSendCodeManually">Send</button>
+          </div>
+        </div>
+      </div>
+    </section>
+  </body>
+
+  <style>
+    .html5-qrcode-element {
+      border: 1px solid #cdcdcd;
+      padding: 4px;
+      margin: 8px;
+      background-color: #f6f6f6;
+    }
+
+  </style>
+
+  <script>
+
+        var lastCodeDetected = ""
+        var button = document.getElementById("btnSendCodeManually");
+        button.addEventListener("click", () =>{
+            let code = document.getElementById("codeInput").value
+            if (lastCodeDetected != code && code.trim() != "") {
+                    lastCodeDetected = code.trim()                        
+                    postAttendance(lastCodeDetected)
+                }     
+        });
+
+        function postAttendance(code){
+                let url = '/api/attendance'
+                let data = new FormData();
+                data.append('csrfmiddlewaretoken', '{{csrf_token}}');
+                data.append('code', code);
+                axios
+                        .post(url, data)
+                        .then((response) => {                                
+                                let title = ""
+                                let icon = ""
+                                if (response.status == 200) {                                    
+                                    let data = response.data;
+                                    if (data.isOk){
+                                        lastCodeDetected = code
+                                        document.getElementById("lastCodeDetected").innerHTML = lastCodeDetected + " - " + data.name
+                                        title = data.name                                            
+                                        icon = "success"                                                
+                                                                               
+                                    }else{
+                                        title = data.msg
+                                        icon = "error"                                        
+                                    }
+                                }else{
+                                    title = "Something didn't go as expected"
+                                    icon = "error"
+                                }
+                                    Swal.fire({
+                                            title: title ,
+                                            text: code,
+                                            icon: icon                                                
+                                    });
+                                
+                        })
+                        .catch((error) => {
+                                console.log(error);
+                        })
+                        //.finally(() => {});
+        }
+
+        function onScanSuccess (decodedText, decodedResult) {
+                if (lastCodeDetected != decodedText) {
+                        lastCodeDetected = decodedText
+                        postAttendance(lastCodeDetected)
+                }
+
+        }
+
+        function onScanFailure (error) {
+                // handle scan failure, usually better to ignore and keep scanning.
+                // for example:
+                // console.warn(`Code scan error = ${error}`);
+        }
+
+
+        let html5QrcodeScanner = new Html5QrcodeScanner(
+                "reader",
+                { fps: 5, qrbox: { width: 250, height: 250 } },
+                /* verbose= */ false);
+
+
+        html5QrcodeScanner.render(onScanSuccess, onScanFailure);
+
+
+
+  </script>
+
+
+</html>
